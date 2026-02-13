@@ -7,7 +7,7 @@ export const metadata = {
     description: "Browse our extensive range of industrial storage solutions.",
 };
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 60;
 
 export default async function CategoriesPage() {
     const dbCategories = await prisma.category.findMany({

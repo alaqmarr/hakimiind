@@ -2,27 +2,26 @@
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Star } from "lucide-react";
 import Link from "next/link";
+import prisma from "@/lib/prisma";
 
-export default function BrandsPage() {
-    const brands = [
-        {
-            name: "Aristo",
-            description: "Leading manufacturer of plastic crates, pallets, and waste management solutions known for durability and precision.",
-            color: "bg-red-600",
-            href: "/products?search=aristo"
+export const revalidate = 60;
+
+export const metadata = {
+    title: "Brands - Hakimi Industrial Products",
+    description: "Our trusted industrial brand partners.",
+};
+
+export default async function BrandsPage() {
+    const brands = await prisma.brand.findMany({
+        orderBy: { name: "asc" },
+        include: {
+            _count: { select: { products: true } },
         },
-        {
-            name: "Supreme",
-            description: "India's plastic trendsetter offering a vast range of industrial handling and storage products.",
-            color: "bg-blue-600",
-            href: "/products?search=supreme"
-        },
-        {
-            name: "Alkon",
-            description: "Specialized storage systems for electronic components, hardware, and automotive industries.",
-            color: "bg-green-600",
-            href: "/products?search=alkon"
-        }
+    });
+
+    const brandColors = [
+        "bg-red-600", "bg-blue-600", "bg-green-600",
+        "bg-amber-600", "bg-purple-600", "bg-teal-600",
     ];
 
     return (
@@ -42,31 +41,42 @@ export default function BrandsPage() {
 
             {/* Brands Grid */}
             <div className="container-custom py-20">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
-                    {brands.map((brand, i) => (
-                        <div key={i} className="group relative bg-[#F5F5F4] border border-black/5 hover:border-primary/50 transition-all duration-500 overflow-hidden flex flex-col p-8">
-                            <div className="mb-6 flex items-center justify-between">
-                                <div className={`h-12 w-12 rounded-full ${brand.color} opacity-80 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white font-bold text-xl uppercase`}>
-                                    {brand.name[0]}
+                {brands.length > 0 ? (
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
+                        {brands.map((brand, i) => (
+                            <div key={brand.id} className="group relative bg-[#F5F5F4] border border-black/5 hover:border-primary/50 transition-all duration-500 overflow-hidden flex flex-col p-8">
+                                <div className="mb-6 flex items-center justify-between">
+                                    <div className={`h-12 w-12 rounded-full ${brandColors[i % brandColors.length]} opacity-80 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white font-bold text-xl uppercase overflow-hidden`}>
+                                        {brand.imageUrl ? (
+                                            <img src={brand.imageUrl} alt={brand.name} className="w-full h-full object-cover" />
+                                        ) : (
+                                            brand.name[0]
+                                        )}
+                                    </div>
+                                    <Star className="text-primary fill-primary size-5 opacity-50 group-hover:opacity-100 transition-opacity" />
                                 </div>
-                                <Star className="text-primary fill-primary size-5 opacity-50 group-hover:opacity-100 transition-opacity" />
+
+                                <h3 className="text-3xl font-bold uppercase tracking-wide mb-4 text-black group-hover:text-primary transition-colors">
+                                    {brand.name}
+                                </h3>
+                                <p className="text-black/60 leading-relaxed mb-8 flex-grow">
+                                    {brand._count.products} product{brand._count.products !== 1 ? "s" : ""} available
+                                </p>
+
+                                <Link href={`/brands/${brand.id}`}>
+                                    <Button className="w-full bg-black text-white hover:bg-primary hover:text-black uppercase tracking-widest rounded-none h-12">
+                                        View Products <ArrowRight className="ml-2 size-4" />
+                                    </Button>
+                                </Link>
                             </div>
-
-                            <h3 className="text-3xl font-bold uppercase tracking-wide mb-4 text-black group-hover:text-primary transition-colors">
-                                {brand.name}
-                            </h3>
-                            <p className="text-black/60 leading-relaxed mb-8 flex-grow">
-                                {brand.description}
-                            </p>
-
-                            <Link href={brand.href}>
-                                <Button className="w-full bg-black text-white hover:bg-primary hover:text-black uppercase tracking-widest rounded-none h-12">
-                                    View Products <ArrowRight className="ml-2 size-4" />
-                                </Button>
-                            </Link>
-                        </div>
-                    ))}
-                </div>
+                        ))}
+                    </div>
+                ) : (
+                    <div className="text-center py-20 border border-dashed border-black/20 bg-black/5">
+                        <h3 className="text-2xl font-bold text-black/50 uppercase tracking-widest">No Brands Found</h3>
+                        <p className="text-black/40 mt-2">Please add brands in the admin panel.</p>
+                    </div>
+                )}
             </div>
 
             {/* CTA */}

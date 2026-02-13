@@ -1,10 +1,24 @@
 import prisma from "@/lib/prisma";
 import { Button } from "@/components/ui/button";
-import { Phone, Check, Shield, Package, ArrowLeft, Mail } from "lucide-react";
+import { ArrowLeft, Mail } from "lucide-react";
 import { EnquireModal } from "@/components/products/enquire-modal";
-import Image from "next/image";
 import { notFound } from "next/navigation";
 import Link from "next/link";
+
+export async function generateStaticParams() {
+    const products = await prisma.product.findMany({ select: { id: true } });
+    return products.map((p) => ({ id: p.id }));
+}
+
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
+    const { id } = await params;
+    const product = await prisma.product.findUnique({ where: { id }, select: { name: true, description: true } });
+    if (!product) return { title: "Product Not Found" };
+    return {
+        title: `${product.name} - Hakimi Industrial Products`,
+        description: product.description?.replace(/<[^>]*>/g, '').slice(0, 160) || `Details for ${product.name}`,
+    };
+}
 
 export default async function ProductDetailPage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = (await params);
@@ -77,28 +91,8 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
                         </h1>
                         <div className="h-1 w-20 bg-primary mb-8" />
 
-                        {/* Price Removed */}
-
                         <div className="prose prose-neutral prose-p:text-black/60 prose-p:font-light prose-headings:font-bold prose-headings:uppercase prose-headings:tracking-wider mb-10 max-w-none border-l-2 border-primary/20 pl-6"
                             dangerouslySetInnerHTML={{ __html: product.description || "No detailed description available." }}>
-                        </div>
-
-                        {/* Specs Grid */}
-                        <div className="grid grid-cols-2 gap-4 mb-10">
-                            {[
-                                { icon: Shield, label: "Material", val: "Virgin Plastic" },
-                                { icon: Package, label: "Stock", val: "Ready to Ship" },
-                                { icon: Check, label: "Warranty", val: "1 Year Standard" },
-                                { icon: Check, label: "Bulk", val: "Discount Available" },
-                            ].map((spec, i) => (
-                                <div key={i} className="flex items-center gap-4 p-4 border border-black/5 bg-black/[0.02]">
-                                    <spec.icon className="size-5 text-primary" />
-                                    <div>
-                                        <div className="text-[10px] uppercase tracking-widest text-black/40">{spec.label}</div>
-                                        <div className="text-sm font-semibold text-black/80">{spec.val}</div>
-                                    </div>
-                                </div>
-                            ))}
                         </div>
 
                         {/* Actions */}

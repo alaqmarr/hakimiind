@@ -5,7 +5,7 @@ import { Search } from "lucide-react";
 import { ProductFilters } from "@/components/products/product-filters";
 import { SidebarFilters } from "@/components/products/sidebar-filters";
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 60;
 
 export default async function ProductsPage({
     searchParams,

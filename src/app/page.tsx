@@ -5,12 +5,13 @@ import { Features } from "@/components/home/features";
 import { CTA } from "@/components/home/cta";
 import { ShowcaseGrid } from "@/components/home/showcase-grid";
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 60;
 
 export default async function Home() {
   // Fetch a mix of products for the showcase
   const products = await prisma.product.findMany({
     take: 4,
+    where: { status: "PUBLISHED" },
     include: {
       images: true,
       category: true,
@@ -18,7 +19,11 @@ export default async function Home() {
     orderBy: {
       createdAt: 'desc'
     }
-    // You could randomize this or select specific "Featured" ones later
+  });
+
+  // Fetch categories from DB for the categories grid
+  const categories = await prisma.category.findMany({
+    orderBy: { name: 'asc' },
   });
 
   return (
@@ -34,7 +39,7 @@ export default async function Home() {
 
       <ShowcaseGrid products={products} />
 
-      <CategoriesGrid />
+      <CategoriesGrid categories={categories} />
 
       <Features />
 
@@ -43,3 +48,4 @@ export default async function Home() {
     </div>
   );
 }
+
