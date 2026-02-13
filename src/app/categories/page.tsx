@@ -41,7 +41,7 @@ export default async function CategoriesPage() {
                 {displayCategories.length > 0 ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                         {displayCategories.map((cat: any, i: number) => (
-                            <Link href={`/products?category=${cat.name}`} key={i} className="group">
+                            <Link href={`/categories/${cat.id}`} key={i} className="group">
                                 <div className={`h-[250px] relative bg-[#F5F5F4] border border-black/10 hover:border-black/30 transition-all duration-300 shadow-sm hover:shadow-md p-10 flex flex-col justify-between overflow-hidden border-l-8 ${getColor(i)}`}>
 
                                     {/* Abstract Pattern overlay */}

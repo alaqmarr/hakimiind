@@ -31,7 +31,7 @@ export default async function BrandDetailPage({ params }: { params: Promise<{ id
     }
 
     const products = await prisma.product.findMany({
-        where: { brandId: id, status: "PUBLISHED" },
+        where: { brandId: id },
         include: { images: true, category: true, brand: true },
         orderBy: { createdAt: "desc" },
     });

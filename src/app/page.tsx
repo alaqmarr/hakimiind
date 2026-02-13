@@ -11,7 +11,7 @@ export default async function Home() {
   // Fetch a mix of products for the showcase
   const products = await prisma.product.findMany({
     take: 4,
-    where: { status: "PUBLISHED" },
+
     include: {
       images: true,
       category: true,

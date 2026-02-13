@@ -18,9 +18,7 @@ export default async function ProductsPage({
     const brandFilters = brand ? (Array.isArray(brand) ? brand : [brand]) : [];
     const purposeFilters = purpose ? (Array.isArray(purpose) ? purpose : [purpose]) : [];
 
-    const where: any = {
-        status: "PUBLISHED", // Only show active products
-    };
+    const where: any = {};
 
     if (category) {
         where.category = { name: { contains: category, mode: "insensitive" } };
